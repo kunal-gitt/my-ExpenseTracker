@@ -1,10 +1,10 @@
 import { useState, useRef, useContext } from "react";
 import classes from "./Login.module.css";
 import AuthContext from "../Store/AuthContext";
-//import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const emailInputRef = useRef();
   const passwordInputref = useRef();
   const confirmPasswordInputref = useRef();
@@ -24,9 +24,12 @@ const Login = () => {
 
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputref.current.value;
-    const enteredconfirmpassword = confirmPasswordInputref.current.value;
 
-    if (enteredPassword !== enteredconfirmpassword) {
+    const enteredconfirmpassword = isLogin
+      ? ""
+      : confirmPasswordInputref.current.value;
+
+    if (enteredPassword !== enteredconfirmpassword && isLogin === false) {
       setIsError("Confirm password should match with password");
     } else {
       setIsLoading(true);
@@ -68,7 +71,7 @@ const Login = () => {
           console.log("user has successfully sign up");
 
           localStorage.setItem("email", JSON.stringify(data.email));
-          // navigate("/products");
+          navigate("/");
         })
         .catch((err) => {
           alert(err.message);
