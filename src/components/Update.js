@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import classes from "./Update.module.css";
 import AuthContext from "../Store/AuthContext";
 
@@ -8,12 +8,12 @@ const Update = () => {
 
   const ctx = useContext(AuthContext);
 
+  const usertoken = localStorage.getItem("token");
+
   const onsubmithandler = async (e) => {
     e.preventDefault();
     const enteredfullName = fullnameInputref.current.value;
     const enteredprofile = ProfileInputref.current.value;
-
-    const usertoken = localStorage.getItem("token");
 
     const response = await fetch(
       "https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDh-JLvSHEIkF6rSIkR_9XM2CiPw0HApho",
@@ -32,6 +32,28 @@ const Update = () => {
     );
     const data = await response.json();
     console.log(data);
+  };
+
+  const verifyemailhandler = async () => {
+    try {
+      const response = await fetch(
+        "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDh-JLvSHEIkF6rSIkR_9XM2CiPw0HApho",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            requestType: "VERIFY_EMAIL",
+            idToken: usertoken,
+          }),
+          headers: {
+            "Content-type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -60,6 +82,7 @@ const Update = () => {
         />
 
         <button className={classes.btn}>Update</button>
+        <button onClick={verifyemailhandler}>Verify email</button>
       </form>
     </div>
   );
