@@ -1,10 +1,12 @@
 import { useContext, useRef } from "react";
 import classes from "./Update.module.css";
 import AuthContext from "../Store/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Update = () => {
   const fullnameInputref = useRef();
   const ProfileInputref = useRef();
+  const navigate = useNavigate();
 
   const ctx = useContext(AuthContext);
 
@@ -56,35 +58,43 @@ const Update = () => {
     }
   };
 
-  return (
-    <div className={classes.container}>
-      <h3>Contact Details</h3>
-      <form className={classes.form} onSubmit={onsubmithandler}>
-        <label>Full Name:</label>
-        <input
-          type="text"
-          ref={fullnameInputref}
-          defaultValue={
-            ctx.userdetails.displayName === undefined
-              ? ""
-              : ctx.userdetails.displayName
-          }
-        />
-        <label>Profile Photo URL:</label>
-        <input
-          type="text"
-          ref={ProfileInputref}
-          defaultValue={
-            ctx.userdetails.photoUrl === undefined
-              ? ""
-              : ctx.userdetails.photoUrl
-          }
-        />
+  const logouthandler = () => {
+    localStorage.removeItem("token");
+    navigate("/Login");
+  };
 
-        <button className={classes.btn}>Update</button>
-        <button onClick={verifyemailhandler}>Verify email</button>
-      </form>
-    </div>
+  return (
+    <>
+      <button onClick={logouthandler}>Logout</button>
+      <div className={classes.container}>
+        <h3>Contact Details</h3>
+        <form className={classes.form} onSubmit={onsubmithandler}>
+          <label>Full Name:</label>
+          <input
+            type="text"
+            ref={fullnameInputref}
+            defaultValue={
+              ctx.userdetails.displayName === undefined
+                ? ""
+                : ctx.userdetails.displayName
+            }
+          />
+          <label>Profile Photo URL:</label>
+          <input
+            type="text"
+            ref={ProfileInputref}
+            defaultValue={
+              ctx.userdetails.photoUrl === undefined
+                ? ""
+                : ctx.userdetails.photoUrl
+            }
+          />
+
+          <button className={classes.btn}>Update</button>
+        </form>
+      </div>
+      <button onClick={verifyemailhandler}>Verify email</button>
+    </>
   );
 };
 
