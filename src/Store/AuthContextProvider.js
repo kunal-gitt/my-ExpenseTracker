@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AuthContext from "./AuthContext";
 
 const AuthContextProvider = (props) => {
@@ -8,6 +8,34 @@ const AuthContextProvider = (props) => {
 
   const userIsLoggedIn = !!token;
 
+  const [userdetails, setuserdetails] = useState({});
+
+  useEffect(() => {
+    const fetchuserdata = async () => {
+      try {
+        const response = await fetch(
+          "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDh-JLvSHEIkF6rSIkR_9XM2CiPw0HApho",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              idToken: token,
+            }),
+            headers: {
+              "Content-type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        setuserdetails(data.users[0]);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    if (initialToken !== null) {
+      fetchuserdata();
+    }
+  }, []);
   const loginHandler = (token) => {
     setToken(token);
     localStorage.setItem("token", token);
@@ -20,6 +48,7 @@ const AuthContextProvider = (props) => {
 
   const contextValue = {
     token: token,
+    userdetails: userdetails,
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,
     logout: logoutHandler,
