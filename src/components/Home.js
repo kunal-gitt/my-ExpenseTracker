@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import classes from "./Home.module.css";
 import { NavLink } from "react-router-dom";
 
@@ -8,24 +8,79 @@ const Home = () => {
   const priceInputRef = useRef();
   const descInputRef = useRef();
   const categoryInputRef = useRef();
+  useEffect(() => {
+    async function fetchdata() {
+      try {
+        const response = await fetch(
+          "https://expensetracker-f73e3-default-rtdb.firebaseio.com/expenses.json",
+          {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
 
-  const dailyexpensehandler = (e) => {
+        const loadedexpenses = [];
+
+        for (const key in data) {
+          loadedexpenses.push({
+            id: key,
+            price: data[key].Price,
+            description: data[key].Desc,
+            category: data[key].Category,
+          });
+        }
+
+        setExpenses(loadedexpenses);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchdata();
+  }, []);
+
+  const dailyexpensehandler = async (e) => {
     e.preventDefault();
 
     const enteredprice = priceInputRef.current.value;
     const entereddesc = descInputRef.current.value;
     const enteredcategory = categoryInputRef.current.value;
 
-    const newExpense = {
-      id: Math.random().toString(),
+    try {
+      const response = await fetch(
+        "https://expensetracker-f73e3-default-rtdb.firebaseio.com/expenses.json",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            Price: enteredprice,
+            Desc: entereddesc,
+            Category: enteredcategory,
+          }),
+          headers: {
+            "Content-type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
+
+    const newexpense = {
+      id: Math.random(),
       price: enteredprice,
       description: entereddesc,
       category: enteredcategory,
     };
 
-    setExpenses((prevExpenses) => {
-      return [...prevExpenses, newExpense];
+    setExpenses((prev) => {
+      return [...prev, newexpense];
     });
+
     priceInputRef.current.value = "";
     descInputRef.current.value = "";
     categoryInputRef.current.value = "";
@@ -46,7 +101,7 @@ const Home = () => {
         <label>Description</label>
         <input type="text" ref={descInputRef} />
         <label htmlFor="expense">Category</label>
-        <select name="expenses" id="expense" ref={categoryInputRef}>
+        <select name="expense" id="expense" ref={categoryInputRef}>
           <option value="Food">Food</option>
           <option value="Petrol">Petrol</option>
           <option value="Salary">Salary</option>
@@ -60,7 +115,6 @@ const Home = () => {
             key={expense.id}
             style={{
               display: "flex",
-              justifyContent: "flex-start",
             }}
           >
             <div>{expense.price}</div>
